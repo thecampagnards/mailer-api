@@ -36,5 +36,5 @@ The body of the request will be used to replace the values of your mail template
 
 The mail template can be based on go template [Check this link for more information](https://golang.org/pkg/text/template/).
 All variables defined in your model will be replaced by the variable defined in the send request.
-You can use HTML or plain text.
+You can use HTML or plain text. [Here](https://github.com/wildbit/postmark-templates) you can find good HTML templates.
 When you post your template you can minifying it (you can use [this tool](https://www.willpeavy.com/minifier/)) and then escape every json characters (you can use [this tool](https://www.freeformatter.com/json-escape.html)).
