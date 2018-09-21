@@ -11,6 +11,10 @@ type MailTemplate struct {
 	CreatedAt time.Time     `json:"createdAt,omitempty" bson:"createdAt"`
 	Template  string
 	Subject   string
+	// The variables below are just for information
+	// this is not used in sending mail
+	Variables   interface{}
+	Description string
 }
 
 type MailTemplates []MailTemplate
