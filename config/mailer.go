@@ -40,6 +40,11 @@ func (ma *Mailer) Send(mail types.Mail) error {
 		return errors.New("There was an error trying to generate the mail with the template: " + err.Error())
 	}
 
+	subject, err := ma.Generate(mail.Template.Subject, mail.TemplateVars)
+	if err != nil {
+		return errors.New("There was an error trying to generate the mail with the template: " + err.Error())
+	}
+
 	m := gomail.NewMessage()
 
 	m.SetHeader("From", mail.SMTP.From)
@@ -53,7 +58,7 @@ func (ma *Mailer) Send(mail types.Mail) error {
 	for _, at := range mail.Attachments {
 		m.Attach(at)
 	}
-	m.SetHeader("Subject", mail.Template.Subject)
+	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", body)
 
 	d := gomail.NewPlainDialer(mail.SMTP.Host, mail.SMTP.Port, mail.SMTP.User, mail.SMTP.Password)
