@@ -6,6 +6,11 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
+const (
+	FORM_DATA_ATTACHMENTS_FIELD_NAME = "attachments"
+	FORM_DATA_DATA_FIELD_NAME        = "data"
+)
+
 type MailTemplate struct {
 	ID        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	CreatedAt time.Time     `json:"createdAt,omitempty" bson:"createdAt"`
@@ -36,7 +41,7 @@ type Mail struct {
 	To           []string
 	Cc           []string
 	Cci          []string
-	Attachement  string
+	Attachments  []string
 	TemplateVars interface{}
 	Template     MailTemplate
 	SMTP         SMTPServer

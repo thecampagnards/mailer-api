@@ -16,9 +16,9 @@ type Mailer struct {
 }
 
 // Generate the html mail with go template
-func (ma *Mailer) Generate(t types.MailTemplate, templateVars interface{}) (string, error) {
+func (ma *Mailer) Generate(t string, templateVars interface{}) (string, error) {
 
-	tmpl, err := template.New("template").Parse(t.Template)
+	tmpl, err := template.New("template").Parse(t)
 	if err != nil {
 		return "", err
 	}
@@ -35,7 +35,7 @@ func (ma *Mailer) Generate(t types.MailTemplate, templateVars interface{}) (stri
 // Send an email
 func (ma *Mailer) Send(mail types.Mail) error {
 
-	body, err := ma.Generate(mail.Template, mail.TemplateVars)
+	body, err := ma.Generate(mail.Template.Template, mail.TemplateVars)
 	if err != nil {
 		return errors.New("There was an error trying to generate the mail with the template: " + err.Error())
 	}
@@ -50,7 +50,9 @@ func (ma *Mailer) Send(mail types.Mail) error {
 	if len(mail.Cci) > 0 {
 		m.SetHeader("Cci", mail.Cci...)
 	}
-	// m.Attach()
+	for _, at := range mail.Attachments {
+		m.Attach(at)
+	}
 	m.SetHeader("Subject", mail.Template.Subject)
 	m.SetBody("text/html", body)
 

@@ -35,12 +35,42 @@ func (m *Mail) Send(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	// formating the readcloser to stringas template vars
-	b := new(bytes.Buffer)
-	b.ReadFrom(c.Request().Body)
-	err = json.Unmarshal(b.Bytes(), &mail.TemplateVars)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+	// Check if multipart
+	if strings.HasPrefix(c.Request().Header.Get(echo.HeaderContentType), echo.MIMEMultipartForm) {
+
+		// get form data
+		form, err := c.MultipartForm()
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+
+		// formating the string vars to object template vars
+		if json.Unmarshal([]byte(form.Value[types.FORM_DATA_DATA_FIELD_NAME][0]), &mail.TemplateVars) != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+
+		cf := config.File{}
+
+		for _, file := range form.File[types.FORM_DATA_ATTACHMENTS_FIELD_NAME] {
+			// Save the file
+			fn, err := cf.Save(file)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, err)
+			}
+			// defer the remove of the file (will be execute after a return)
+			defer cf.Remove(fn)
+
+			// Add the filename in the attachments
+			mail.Attachments = append(mail.Attachments, fn)
+		}
+
+	} else {
+		// formating the readcloser to strings template vars
+		b := new(bytes.Buffer)
+		b.ReadFrom(c.Request().Body)
+		if json.Unmarshal(b.Bytes(), &mail.TemplateVars) != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
 	}
 
 	splitFn := func(c rune) bool {
@@ -51,12 +81,6 @@ func (m *Mail) Send(c echo.Context) error {
 	mail.To = strings.FieldsFunc(c.QueryParam("to"), splitFn)
 	mail.Cc = strings.FieldsFunc(c.QueryParam("cc"), splitFn)
 	mail.Cci = strings.FieldsFunc(c.QueryParam("cci"), splitFn)
-	/*
-		mail.Attachement, err := c.FormFile("attachement")
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, err)
-		}
-	*/
 
 	mailer := config.Mailer{}
 	// Send the mail

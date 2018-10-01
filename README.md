@@ -38,3 +38,28 @@ The mail template can be based on go template [Check this link for more informat
 All variables defined in your model will be replaced by the variable defined in the send request.
 You can use HTML or plain text. [Here](https://github.com/wildbit/postmark-templates) you can find good HTML templates.
 When you post your template you can minifying it (you can use [this tool](https://www.willpeavy.com/minifier/)) and then escape every json characters (you can use [this tool](https://www.freeformatter.com/json-escape.html)).
+
+## Send
+
+You can send mail like that :
+
+```bash
+curl -X POST \
+-H 'Content-Type: application/json' \
+-d '{"MyTemplateVars":"...."}' \
+http://localhost:8080/send?...
+```
+
+## Attachements
+
+You can add files to the sended mail like that :
+
+```bash
+curl -X POST \
+-H 'Content-Type: multipart/form-data' \
+-F 'attachments=@/path/to/fileX' \
+-F 'attachments=@/path/to/fileY' \
+... \
+-F 'data={"MyTemplateVars":"...."}' \
+http://localhost:8080/send?...
+```
