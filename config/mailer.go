@@ -48,7 +48,9 @@ func (ma *Mailer) Send(mail types.Mail) error {
 	m := gomail.NewMessage()
 
 	m.SetHeader("From", mail.SMTP.From)
-	m.SetHeader("To", mail.To...)
+	if len(mail.To) > 0 {
+		m.SetHeader("To", mail.To...)
+	}
 	if len(mail.Cc) > 0 {
 		m.SetHeader("Cc", mail.Cc...)
 	}
