@@ -20,6 +20,11 @@ func (f *File) Save(fh *multipart.FileHeader) (string, error) {
 
 	defer src.Close()
 
+	// Check if tempDir exist if not create it
+	if _, err := os.Stat(os.TempDir()); os.IsNotExist(err) {
+		os.MkdirAll(os.TempDir(), os.ModePerm)
+	}
+
 	dst, err := os.Create(os.TempDir() + "/" + fh.Filename)
 	if err != nil {
 		return "", err
