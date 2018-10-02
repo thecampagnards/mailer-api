@@ -22,22 +22,45 @@ You can define some env vars:
 
 ## Usage
 
-You can add a server configuration by POSTing on this path `/configuration/smtp` a json like that <https://github.com/thecampagnards/mailer-api/blob/master/types/types.go#L18>.
+You can add a server configuration by POSTing on this path `/configuration/smtp` a json like that [see the object type](https://github.com/thecampagnards/mailer-api/blob/master/types/types.go#L27) :
 
-You can check your configuration by GETing this path `/configuration/smtp`.
+```json
+{
+  "Host": "...",
+  "Port": 587,
+  "User": "...",
+  "Password": "...",
+  "From": "...",
+  "InsecureSkipVerify": true
+}
+```
 
-This is the same for the template. And the template can be a go template, the variables will be replace by the json send value.
-
-To send a mail, you can use this path `http://localhost:8080/send?server-smtp-id=<ID>&template-id=<ID>&to=<MAILS>&cc=<MAILS>&cci=<MAILS>`.
-Mails have to be split by `,`.`cc`, `cci` are not mandatory.
-The body of the request will be used to replace the values of your mail template.
+You can check your configuration by GETing this path `/configuration/smtp` and retrieve the id for the sending part.
 
 ## Templating
 
 The mail template can be based on go template [Check this link for more information](https://golang.org/pkg/text/template/).
-All variables defined in your model will be replaced by the variable defined in the send request.
+All variables defined in your model will be replaced by the variable defined in the send mail request.
 You can use HTML or plain text. [Here](https://github.com/wildbit/postmark-templates) you can find good HTML templates.
 When you post your template you can minifying it (you can use [this tool](https://www.willpeavy.com/minifier/)) and then escape every json characters (you can use [this tool](https://www.freeformatter.com/json-escape.html)).
+
+You can also use go template in the subject of the mail.
+
+You can add a template by POSTing on this path `/configuration/template` a json like that [see the object type](https://github.com/thecampagnards/mailer-api/blob/master/types/types.go#L14) :
+
+```json
+{
+  "Subject": "...",
+  "Template": "...",
+  "Variables": {
+    "MyTemplateVar": {
+      "type": "this is used as information",
+      "description": "this is used as information"
+    }
+  },
+  "Description": "this is used as information"
+}
+```
 
 ## Send
 
@@ -46,11 +69,14 @@ You can send mail like that :
 ```bash
 curl -X POST \
 -H 'Content-Type: application/json' \
--d '{"MyTemplateVars":"...."}' \
-http://localhost:8080/send?...
+-d '{"MyTemplateVar":"...."}' \
+http://localhost:8080/send?server-smtp-id=...&template-id=...&to=...&cc=...&cci=...
 ```
 
-## Attachements
+`server-smtp-id` and `template-id` can be retrieve by GETing this path `/configuration/smtp` and `/configuration/template`.
+Mails have to be split by `,`.`to`, `cc`, `cci` are not mandatory.
+
+### Send with attachements
 
 You can add files to the sended mail like that :
 
@@ -60,6 +86,6 @@ curl -X POST \
 -F 'attachments=@/path/to/fileX' \
 -F 'attachments=@/path/to/fileY' \
 ... \
--F 'data={"MyTemplateVars":"...."}' \
-http://localhost:8080/send?...
+-F 'data={"MyTemplateVar":"...."}' \
+http://localhost:8080/send?server-smtp-id=...&template-id=...&to=...&cc=...&cci=...
 ```
