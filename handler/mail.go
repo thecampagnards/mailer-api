@@ -26,14 +26,18 @@ func (m *Mail) Send(c echo.Context) error {
 	// Retreiving the smtp conf
 	mail.SMTP, err = dao.GetByIDSMTPServer(c.QueryParam("server-smtp-id"))
 	if err != nil {
+		c.Logger().Errorf("Error when retreiving smtp server : %s", c.QueryParam("server-smtp-id"))
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	// Retreiving the template conf
 	mail.Template, err = dao.GetByIDMailTemplate(c.QueryParam("template-id"))
 	if err != nil {
+		c.Logger().Errorf("Error when retreiving template : %s", c.QueryParam("template-id"))
 		return c.JSON(http.StatusBadRequest, err)
 	}
+
+	c.Logger().Infof("POST request as %s", c.Request().Header.Get(echo.HeaderContentType))
 
 	// Check if multipart
 	if strings.HasPrefix(c.Request().Header.Get(echo.HeaderContentType), echo.MIMEMultipartForm) {
@@ -41,11 +45,13 @@ func (m *Mail) Send(c echo.Context) error {
 		// get form data
 		form, err := c.MultipartForm()
 		if err != nil {
+			c.Logger().Error("Error when parsing the form")
 			return c.JSON(http.StatusBadRequest, err)
 		}
 
 		// formating the string vars to object template vars
 		if json.Unmarshal([]byte(form.Value[types.FORM_DATA_DATA_FIELD_NAME][0]), &mail.TemplateVars) != nil {
+			c.Logger().Errorf("Error when parsing to json the field %s", types.FORM_DATA_DATA_FIELD_NAME)
 			return c.JSON(http.StatusBadRequest, err)
 		}
 
@@ -55,6 +61,7 @@ func (m *Mail) Send(c echo.Context) error {
 			// Save the file
 			fn, err := cf.Save(file)
 			if err != nil {
+				c.Logger().Errorf("Error when saving the file %s", file.Filename)
 				return c.JSON(http.StatusBadRequest, err)
 			}
 			// defer the remove of the file (will be execute after a return)
@@ -69,6 +76,7 @@ func (m *Mail) Send(c echo.Context) error {
 		b := new(bytes.Buffer)
 		b.ReadFrom(c.Request().Body)
 		if json.Unmarshal(b.Bytes(), &mail.TemplateVars) != nil {
+			c.Logger().Errorf("Error when parsing to json body")
 			return c.JSON(http.StatusBadRequest, err)
 		}
 	}
@@ -86,7 +94,10 @@ func (m *Mail) Send(c echo.Context) error {
 	// Send the mail
 	err = mailer.Send(mail)
 	if err != nil {
+		c.Logger().Errorf("Error when sending mail")
 		return c.JSON(http.StatusBadRequest, err)
 	}
+
+	c.Logger().Info("Mail sended")
 	return c.JSON(http.StatusOK, "send")
 }

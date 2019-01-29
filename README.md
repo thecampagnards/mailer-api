@@ -41,7 +41,7 @@ You can check your configuration by GETing this path `/configuration/smtp` and r
 
 The mail template can be based on go template [Check this link for more information](https://golang.org/pkg/text/template/).
 All variables defined in your model will be replaced by the variable defined in the send mail request.
-You can use HTML or plain text. [Here](https://github.com/wildbit/postmark-templates) you can find good HTML templates.
+You can use HTML, markdown or plain text. [Here](https://github.com/wildbit/postmark-templates) you can find good HTML templates.
 When you post your template you can minifying it (you can use [this tool](https://www.willpeavy.com/minifier/)) and then escape every json characters (you can use [this tool](https://www.freeformatter.com/json-escape.html)).
 
 You can also use go template in the subject of the mail.

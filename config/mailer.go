@@ -8,7 +8,8 @@ import (
 	"errors"
 	"text/template"
 
-	"gopkg.in/gomail.v2"
+	gomail "gopkg.in/gomail.v2"
+	blackfriday "gopkg.in/russross/blackfriday.v2"
 )
 
 // Mailer struct which contains the functions of this class
@@ -29,7 +30,7 @@ func (ma *Mailer) Generate(t string, templateVars interface{}) (string, error) {
 		return "", err
 	}
 
-	return b.String(), nil
+	return string(blackfriday.Run(b.Bytes())), nil
 }
 
 // Send an email

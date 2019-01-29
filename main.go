@@ -15,8 +15,10 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
 		if username == os.Getenv("ADMIN_USER") && password == os.Getenv("ADMIN_PASSWORD") {
+			e.Logger.Info("Good credentials")
 			return true, nil
 		}
+		e.Logger.Error("Wrong credentials")
 		return false, nil
 	}))
 
