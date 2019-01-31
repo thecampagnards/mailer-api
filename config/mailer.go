@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"mailer-api/types"
 
 	"bytes"
@@ -19,7 +20,11 @@ type Mailer struct {
 // Generate the html mail with go template
 func (ma *Mailer) Generate(t string, templateVars interface{}) (string, error) {
 
-	tmpl, err := template.New("template").Parse(t)
+	tmpl, err := template.New("template").Funcs(template.FuncMap{
+		"markdown": func(args ...interface{}) string {
+			return string(blackfriday.Run([]byte(fmt.Sprintf("%s", args...))))
+		},
+	}).Parse(t)
 	if err != nil {
 		return "", err
 	}
@@ -30,7 +35,7 @@ func (ma *Mailer) Generate(t string, templateVars interface{}) (string, error) {
 		return "", err
 	}
 
-	return string(blackfriday.Run(b.Bytes())), nil
+	return string(b.Bytes()), nil
 }
 
 // Send an email
