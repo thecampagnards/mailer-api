@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"mailer-api/config"
 	"mailer-api/dao"
 	"mailer-api/types"
 
@@ -34,7 +35,7 @@ func (te *Template) GetByID(c echo.Context) error {
 // Save a mail template
 func (te *Template) Save(c echo.Context) error {
 	var t types.MailTemplate
-	err := c.Bind(&t)
+	err := config.Convert(c.Request().Body, &t)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

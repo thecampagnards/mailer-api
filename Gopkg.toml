@@ -26,12 +26,12 @@
 
 
 [[constraint]]
-  branch = "master"
   name = "github.com/globalsign/mgo"
+  branch = "master"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/labstack/echo"
+  version = "v3.3.10"
 
 [[constraint]]
   name = "gopkg.in/russross/blackfriday.v2"
@@ -40,6 +40,10 @@
 [[constraint]]
   name = "gopkg.in/gomail.v2"
   version = "2.0.0"
+
+[[constraint]]
+  name = "gopkg.in/yaml.v2"
+  version = "v2.2.2"
 
 [prune]
   go-tests = true

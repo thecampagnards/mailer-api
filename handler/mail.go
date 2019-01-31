@@ -5,7 +5,6 @@ import (
 	"mailer-api/dao"
 	"mailer-api/types"
 
-	"bytes"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -86,10 +85,8 @@ func (m *Mail) Send(c echo.Context) error {
 
 	} else {
 		// formating the readcloser to strings template vars
-		b := new(bytes.Buffer)
-		b.ReadFrom(c.Request().Body)
-		if json.Unmarshal(b.Bytes(), &mail.TemplateVars) != nil {
-			c.Logger().Errorf("Error when parsing to json body")
+		if err := config.Convert(c.Request().Body, &mail.TemplateVars); err != nil {
+			c.Logger().Error("Error when parsing to json body")
 			return c.JSON(http.StatusBadRequest, err)
 		}
 	}

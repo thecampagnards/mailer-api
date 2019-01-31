@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"mailer-api/config"
 	"mailer-api/dao"
 	"mailer-api/types"
 
@@ -34,7 +35,7 @@ func (st *SMTP) GetByID(c echo.Context) error {
 // Save a smtp server
 func (st *SMTP) Save(c echo.Context) error {
 	var u types.SMTPServer
-	err := c.Bind(&u)
+	err := config.Convert(c.Request().Body, &u)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

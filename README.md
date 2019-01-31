@@ -46,7 +46,7 @@ When you post your template you can minifying it (you can use [this tool](https:
 
 You can also use go template in the subject of the mail.
 
-You can add a template by POSTing on this path `/configuration/template` a json like that [see the object type](https://github.com/thecampagnards/mailer-api/blob/master/types/types.go#L14) :
+You can add a template by POSTing on this path `/configuration/template` a json or yaml like that [see the object type](https://github.com/thecampagnards/mailer-api/blob/master/types/types.go#L14) :
 
 ```json
 {
@@ -63,9 +63,20 @@ You can add a template by POSTing on this path `/configuration/template` a json 
 }
 ```
 
+```yaml
+subject: Example
+description: "this is used as information"
+template: |
+    This is an example <a href="https://github.com/thecampagnards">github</a>
+variables: 
+  myTemplateVar: 
+    description: "this is used as information"
+    type: "this is used as information"
+```
+
 You can also use `Layout`, in this layout you can define blocks `{{define "title"}}Home{{end}}` then you can use it in your mail template `{{template "title" .}}`.
 
-You can add a layout by POSTing on this path `/configuration/layout` a json like that [see the object type](https://github.com/thecampagnards/mailer-api/blob/master/types/types.go#L28) :
+You can add a layout by POSTing on this path `/configuration/layout` a json or yaml like that [see the object type](https://github.com/thecampagnards/mailer-api/blob/master/types/types.go#L28) :
 
 ```json
 {
@@ -74,11 +85,16 @@ You can add a layout by POSTing on this path `/configuration/layout` a json like
 }
 ```
 
+```yaml
+layout: {{define "title"}}Home{{end}}
+description: this is used as information
+```
+
 To use this layout in your template, you just have to append the layout id in the key `LayoutIDs` of your template.
 
 ## Send
 
-You can send mail like that :
+You can send mail like that (the body can also be a yaml):
 
 ```bash
 curl -X POST \
