@@ -37,7 +37,20 @@ func (m *Mail) Send(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	c.Logger().Infof("POST request as %s", c.Request().Header.Get(echo.HeaderContentType))
+	for _, ID := range mail.Template.LayoutIDs {
+
+		// Retreiving the layout
+		layout, err := dao.GetByIDLayout(ID.Hex())
+		if err != nil {
+			c.Logger().Errorf("Error when retreiving layout : %s", ID)
+			return c.JSON(http.StatusBadRequest, err)
+		}
+
+		mail.Template.Template = layout.Layout + mail.Template.Template
+	}
+
+	c.Logger().Info("Template : %s", mail.Template.Template)
+	c.Logger().Info("POST request as %s", c.Request().Header.Get(echo.HeaderContentType))
 
 	// Check if multipart
 	if strings.HasPrefix(c.Request().Header.Get(echo.HeaderContentType), echo.MIMEMultipartForm) {
@@ -94,7 +107,7 @@ func (m *Mail) Send(c echo.Context) error {
 	// Send the mail
 	err = mailer.Send(mail)
 	if err != nil {
-		c.Logger().Errorf("Error when sending mail")
+		c.Logger().Error("Error when sending mail")
 		return c.JSON(http.StatusBadRequest, err)
 	}
 

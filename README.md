@@ -41,7 +41,7 @@ You can check your configuration by GETing this path `/configuration/smtp` and r
 
 The mail template can be based on go template [Check this link for more information](https://golang.org/pkg/text/template/).
 All variables defined in your model will be replaced by the variable defined in the send mail request.
-You can use HTML, markdown or plain text. [Here](https://github.com/wildbit/postmark-templates) you can find good HTML templates.
+You can use HTML, markdown (use `{{ "# my text" | markdown }}` in template) or plain text. [Here](https://github.com/wildbit/postmark-templates) you can find good HTML templates.
 When you post your template you can minifying it (you can use [this tool](https://www.willpeavy.com/minifier/)) and then escape every json characters (you can use [this tool](https://www.freeformatter.com/json-escape.html)).
 
 You can also use go template in the subject of the mail.
@@ -52,6 +52,7 @@ You can add a template by POSTing on this path `/configuration/template` a json 
 {
   "Subject": "...",
   "Template": "...",
+  "LayoutIDs": ["...", "..."],
   "Variables": {
     "MyTemplateVar": {
       "type": "this is used as information",
@@ -61,6 +62,19 @@ You can add a template by POSTing on this path `/configuration/template` a json 
   "Description": "this is used as information"
 }
 ```
+
+You can also use `Layout`, in this layout you can define blocks `{{define "title"}}Home{{end}}` then you can use it in your mail template `{{template "title" .}}`.
+
+You can add a layout by POSTing on this path `/configuration/layout` a json like that [see the object type](https://github.com/thecampagnards/mailer-api/blob/master/types/types.go#L28) :
+
+```json
+{
+  "Layout": "{{define \"title\"}}Home{{end}}",
+  "Description": "this is used as information"
+}
+```
+
+To use this layout in your template, you just have to append the layout id in the key `LayoutIDs` of your template.
 
 ## Send
 

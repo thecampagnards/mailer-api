@@ -16,6 +16,7 @@ type MailTemplate struct {
 	CreatedAt time.Time     `json:"createdAt,omitempty" bson:"createdAt"`
 	Template  string
 	Subject   string
+	LayoutIDs []bson.ObjectId
 	// The variables below are just for information
 	// this is not used in sending mail
 	Variables   interface{}
@@ -23,6 +24,16 @@ type MailTemplate struct {
 }
 
 type MailTemplates []MailTemplate
+
+type Layout struct {
+	ID        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	CreatedAt time.Time     `json:"createdAt,omitempty" bson:"createdAt"`
+	Layout    string
+	// The variables below are just for information
+	Description string
+}
+
+type Layouts []Layout
 
 type SMTPServer struct {
 	ID                 bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`

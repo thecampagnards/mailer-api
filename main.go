@@ -24,6 +24,7 @@ func main() {
 
 	SMTP := handler.SMTP{}
 	Template := handler.Template{}
+	Layout := handler.Layout{}
 	Mail := handler.Mail{}
 
 	conf := e.Group("/configuration")
@@ -32,6 +33,12 @@ func main() {
 	stmp.GET("/:id", SMTP.GetByID)
 	stmp.GET("", SMTP.GetAll)
 	stmp.POST("", SMTP.Save)
+
+	// For layout conf
+	layout := conf.Group("/layout")
+	layout.GET("/:id", Layout.GetByID)
+	layout.GET("", Layout.GetAll)
+	layout.POST("", Layout.Save)
 
 	// For template conf
 	template := conf.Group("/template")
