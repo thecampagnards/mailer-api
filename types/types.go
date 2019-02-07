@@ -12,11 +12,12 @@ const (
 )
 
 type MailTemplate struct {
-	ID        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	CreatedAt time.Time     `json:"createdAt,omitempty" bson:"createdAt"`
-	Template  string
-	Subject   string
-	LayoutIDs []bson.ObjectId
+	ID          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	CreatedAt   time.Time     `json:"createdAt,omitempty" bson:"createdAt"`
+	Template    string
+	TemplateURL string
+	Subject     string
+	LayoutIDs   []bson.ObjectId
 	// The variables below are just for information
 	// this is not used in sending mail
 	Variables   interface{}
@@ -29,6 +30,7 @@ type Layout struct {
 	ID        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	CreatedAt time.Time     `json:"createdAt,omitempty" bson:"createdAt"`
 	Layout    string
+	LayoutURL string
 	// The variables below are just for information
 	Description string
 }

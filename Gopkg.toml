@@ -45,6 +45,10 @@
   name = "gopkg.in/yaml.v2"
   version = "v2.2.2"
 
+[[constraint]]
+  name = "github.com/imdario/mergo"
+  version = "v0.3.7"
+
 [prune]
   go-tests = true
   unused-packages = true

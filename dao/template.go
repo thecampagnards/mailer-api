@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo/bson"
+	"github.com/imdario/mergo"
 )
 
 const colTemplate string = "templates"
@@ -60,11 +61,20 @@ func GetByIDMailTemplate(id string) (types.MailTemplate, error) {
 	return t, err
 }
 
-// NewMailTemplate Save a mail template
-func NewMailTemplate(t types.MailTemplate) (types.MailTemplate, error) {
+// CreateorUpdateMailTemplate Save a mail template
+func CreateorUpdateMailTemplate(t types.MailTemplate) (types.MailTemplate, error) {
+
+	if t.TemplateURL != "" {
+		if t.Template != "" {
+			return t, errors.New("You can put both template and templateURL")
+		}
+
+		if config.IsValidURL(t.TemplateURL) {
+			return t, errors.New("Your URL is not valid")
+		}
+	}
+
 	db := config.DB{}
-	t.ID = bson.NewObjectId()
-	t.CreatedAt = time.Now()
 
 	s, err := db.DoDial()
 
@@ -76,7 +86,17 @@ func NewMailTemplate(t types.MailTemplate) (types.MailTemplate, error) {
 
 	c := s.DB(db.Name()).C(colTemplate)
 
-	err = c.Insert(t)
+	if t.ID.Valid() {
+		template, _ := GetByIDMailTemplate(t.ID.Hex())
+		if err := mergo.Merge(&t, template); err != nil {
+			return t, err
+		}
+		err = c.UpdateId(t.ID, t)
+	} else {
+		t.ID = bson.NewObjectId()
+		t.CreatedAt = time.Now()
+		err = c.Insert(t)
+	}
 
 	if err != nil {
 		return t, errors.New("There was an error trying to insert the template to the DB")

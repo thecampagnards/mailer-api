@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo/bson"
+	"github.com/imdario/mergo"
 )
 
 const colLayout string = "layouts"
@@ -60,11 +61,19 @@ func GetByIDLayout(id string) (types.Layout, error) {
 	return t, err
 }
 
-// NewLayout Save a layout
-func NewLayout(t types.Layout) (types.Layout, error) {
+// CreateOrUpdateLayout Save a layout
+func CreateOrUpdateLayout(t types.Layout) (types.Layout, error) {
+
+	if t.LayoutURL != "" {
+		if t.Layout != "" {
+			return t, errors.New("You can put both Layout and LayoutURL")
+		}
+		if config.IsValidURL(t.LayoutURL) {
+			return t, errors.New("Your URL is not valid")
+		}
+	}
+
 	db := config.DB{}
-	t.ID = bson.NewObjectId()
-	t.CreatedAt = time.Now()
 
 	s, err := db.DoDial()
 
@@ -77,6 +86,18 @@ func NewLayout(t types.Layout) (types.Layout, error) {
 	c := s.DB(db.Name()).C(colLayout)
 
 	err = c.Insert(t)
+
+	if t.ID.Valid() {
+		layout, _ := GetByIDLayout(t.ID.Hex())
+		if err := mergo.Merge(&t, layout); err != nil {
+			return t, err
+		}
+		err = c.UpdateId(t.ID, t)
+	} else {
+		t.ID = bson.NewObjectId()
+		t.CreatedAt = time.Now()
+		err = c.Insert(t)
+	}
 
 	if err != nil {
 		return t, errors.New("There was an error trying to insert the layout to the DB")

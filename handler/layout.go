@@ -39,7 +39,7 @@ func (te *Layout) Save(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	s, err := dao.NewLayout(t)
+	s, err := dao.CreateOrUpdateLayout(t)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

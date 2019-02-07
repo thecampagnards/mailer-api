@@ -36,6 +36,14 @@ func (m *Mail) Send(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
+	if mail.Template.TemplateURL != "" {
+		mail.Template.Template, err = config.FetchBodyFromURL(mail.Template.TemplateURL)
+		if err != nil {
+			c.Logger().Errorf("Error when requesting the url : %s", mail.Template.TemplateURL)
+			return c.JSON(http.StatusBadRequest, err)
+		}
+	}
+
 	for _, ID := range mail.Template.LayoutIDs {
 
 		// Retreiving the layout
@@ -43,6 +51,14 @@ func (m *Mail) Send(c echo.Context) error {
 		if err != nil {
 			c.Logger().Errorf("Error when retreiving layout : %s", ID)
 			return c.JSON(http.StatusBadRequest, err)
+		}
+
+		if layout.LayoutURL != "" {
+			layout.Layout, err = config.FetchBodyFromURL(layout.LayoutURL)
+			if err != nil {
+				c.Logger().Errorf("Error when requesting the url : %s", mail.Template.TemplateURL)
+				return c.JSON(http.StatusBadRequest, err)
+			}
 		}
 
 		mail.Template.Template = layout.Layout + mail.Template.Template

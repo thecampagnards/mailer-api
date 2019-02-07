@@ -46,12 +46,14 @@ When you post your template you can minifying it (you can use [this tool](https:
 
 You can also use go template in the subject of the mail.
 
+The template and the layout can be store somewhere else and can be retrieved via the url. You can't put both url and template.
+
 You can add a template by POSTing on this path `/configuration/template` a json or yaml like that [see the object type](https://github.com/thecampagnards/mailer-api/blob/master/types/types.go#L14) :
 
 ```json
 {
   "Subject": "...",
-  "Template": "...",
+  "Template": "...", /* or */ "TemplateURL": "...",
   "LayoutIDs": ["...", "..."],
   "Variables": {
     "MyTemplateVar": {
@@ -68,8 +70,8 @@ subject: Example
 description: "this is used as information"
 template: |
     This is an example <a href="https://github.com/thecampagnards">github</a>
-variables: 
-  myTemplateVar: 
+variables:
+  myTemplateVar:
     description: "this is used as information"
     type: "this is used as information"
 ```
@@ -80,7 +82,7 @@ You can add a layout by POSTing on this path `/configuration/layout` a json or y
 
 ```json
 {
-  "Layout": "{{define \"title\"}}Home{{end}}",
+  "Layout": "{{define \"title\"}}Home{{end}}",  /* or */ "LayoutURL": "",
   "Description": "this is used as information"
 }
 ```

@@ -39,7 +39,7 @@ func (st *SMTP) Save(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	s, err := dao.NewSMTPServer(u)
+	s, err := dao.CreateOrUpdateSMTPServer(u)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

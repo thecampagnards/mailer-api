@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo/bson"
+	"github.com/imdario/mergo"
 )
 
 const colSMTP string = "smtp"
@@ -60,11 +61,9 @@ func GetByIDSMTPServer(id string) (types.SMTPServer, error) {
 	return t, err
 }
 
-// NewSMTPServer create a new smtp conf
-func NewSMTPServer(t types.SMTPServer) (types.SMTPServer, error) {
+// CreateOrUpdateSMTPServer create or update smtp conf
+func CreateOrUpdateSMTPServer(t types.SMTPServer) (types.SMTPServer, error) {
 	db := config.DB{}
-	t.ID = bson.NewObjectId()
-	t.CreatedAt = time.Now()
 
 	s, err := db.DoDial()
 
@@ -77,6 +76,18 @@ func NewSMTPServer(t types.SMTPServer) (types.SMTPServer, error) {
 	c := s.DB(db.Name()).C(colSMTP)
 
 	err = c.Insert(t)
+
+	if t.ID.Valid() {
+		smtp, _ := GetByIDSMTPServer(t.ID.Hex())
+		if err := mergo.Merge(&t, smtp); err != nil {
+			return t, err
+		}
+		err = c.UpdateId(t.ID, t)
+	} else {
+		t.ID = bson.NewObjectId()
+		t.CreatedAt = time.Now()
+		err = c.Insert(t)
+	}
 
 	if err != nil {
 		return t, errors.New("There was an error trying to insert the SMTPServer to the DB")
