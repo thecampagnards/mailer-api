@@ -24,7 +24,7 @@ func (ma *Mailer) Generate(t string, templateVars interface{}) (string, error) {
 		"markdown": func(args ...interface{}) string {
 			return string(blackfriday.Run([]byte(fmt.Sprintf("%s", args...))))
 		},
-	}).Parse(t)
+	}).Option("missingkey=error").Parse(t)
 	if err != nil {
 		return "", err
 	}
