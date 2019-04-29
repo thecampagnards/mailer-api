@@ -39,9 +39,9 @@ func (te *Template) Save(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	s, err := dao.CreateorUpdateMailTemplate(t)
+	t, err = dao.CreateorUpdateMailTemplate(t)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, t)
 }

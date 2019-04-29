@@ -5,10 +5,9 @@ import (
 	"mailer-api/types"
 
 	"errors"
-	"time"
 
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/imdario/mergo"
 )
 
 const colTemplate string = "templates"
@@ -86,21 +85,16 @@ func CreateorUpdateMailTemplate(t types.MailTemplate) (types.MailTemplate, error
 
 	c := s.DB(db.Name()).C(colTemplate)
 
-	if t.ID.Valid() {
-		template, _ := GetByIDMailTemplate(t.ID.Hex())
-		if err := mergo.Merge(&t, template); err != nil {
-			return t, err
-		}
-		err = c.UpdateId(t.ID, t)
-	} else {
+	if !t.ID.Valid() {
 		t.ID = bson.NewObjectId()
-		t.CreatedAt = time.Now()
-		err = c.Insert(t)
 	}
 
-	if err != nil {
-		return t, errors.New("There was an error trying to insert the template to the DB")
+	change := mgo.Change{
+		Update:    bson.M{"$set": t},
+		ReturnNew: true,
+		Upsert:    true,
 	}
+	_, err = c.FindId(t.ID).Apply(change, &t)
 
 	return t, err
 }

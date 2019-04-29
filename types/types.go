@@ -1,8 +1,6 @@
 package types
 
 import (
-	"time"
-
 	"github.com/globalsign/mgo/bson"
 )
 
@@ -12,40 +10,37 @@ const (
 )
 
 type MailTemplate struct {
-	ID          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	CreatedAt   time.Time     `json:"createdAt,omitempty" bson:"createdAt"`
-	Template    string
-	TemplateURL string
-	Subject     string
-	LayoutIDs   []bson.ObjectId
+	ID          bson.ObjectId   `yaml:"_id,omitempty" json:"_id,omitempty" bson:"_id,omitempty"`
+	Template    string          `yaml:"template" json:"template" bson:"template"`
+	TemplateURL string          `yaml:"template_url" json:"template_url" bson:"template_url"`
+	Subject     string          `yaml:"subject" json:"subject" bson:"subject"`
+	LayoutIDs   []bson.ObjectId `yaml:"layout_ids" json:"layout_ids" bson:"layout_ids"`
 	// The variables below are just for information
 	// this is not used in sending mail
-	Variables   interface{}
-	Description string
+	Variables   interface{} `yaml:"variables" json:"variables" bson:"variables"`
+	Description string      `yaml:"description" json:"description" bson:"description"`
 }
 
 type MailTemplates []MailTemplate
 
 type Layout struct {
-	ID        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	CreatedAt time.Time     `json:"createdAt,omitempty" bson:"createdAt"`
-	Layout    string
-	LayoutURL string
+	ID        bson.ObjectId `yaml:"_id,omitempty" json:"_id,omitempty" bson:"_id,omitempty"`
+	Layout    string        `yaml:"layout" json:"layout" bson:"layout"`
+	LayoutURL string        `yaml:"layout_url" json:"layout_url" bson:"layout_url"`
 	// The variables below are just for information
-	Description string
+	Description string `yaml:"description" json:"description" bson:"description"`
 }
 
 type Layouts []Layout
 
 type SMTPServer struct {
 	ID                 bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	CreatedAt          time.Time     `json:"createdAt,omitempty" bson:"createdAt"`
-	Host               string
-	Port               int
-	User               string
-	Password           string
-	From               string
-	InsecureSkipVerify bool
+	Host               string        `yaml:"host" json:"host" bson:"host"`
+	Port               int           `yaml:"port" json:"port" bson:"port"`
+	User               string        `yaml:"user" json:"user" bson:"user"`
+	Password           string        `yaml:"password" json:"password" bson:"password"`
+	From               string        `yaml:"from" json:"from" bson:"from"`
+	InsecureSkipVerify bool          `yaml:"insecure_skip_verify" json:"insecure_skip_verify" bson:"insecure_skip_verify"`
 }
 
 type SMTPServers []SMTPServer

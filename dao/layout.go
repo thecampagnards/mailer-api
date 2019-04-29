@@ -5,10 +5,9 @@ import (
 	"mailer-api/types"
 
 	"errors"
-	"time"
 
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/imdario/mergo"
 )
 
 const colLayout string = "layouts"
@@ -66,7 +65,7 @@ func CreateOrUpdateLayout(t types.Layout) (types.Layout, error) {
 
 	if t.LayoutURL != "" {
 		if t.Layout != "" {
-			return t, errors.New("You can put both Layout and LayoutURL")
+			return t, errors.New("You can't put both layout and layout_url")
 		}
 		if config.IsValidURL(t.LayoutURL) {
 			return t, errors.New("Your URL is not valid")
@@ -85,23 +84,16 @@ func CreateOrUpdateLayout(t types.Layout) (types.Layout, error) {
 
 	c := s.DB(db.Name()).C(colLayout)
 
-	err = c.Insert(t)
-
-	if t.ID.Valid() {
-		layout, _ := GetByIDLayout(t.ID.Hex())
-		if err := mergo.Merge(&t, layout); err != nil {
-			return t, err
-		}
-		err = c.UpdateId(t.ID, t)
-	} else {
+	if !t.ID.Valid() {
 		t.ID = bson.NewObjectId()
-		t.CreatedAt = time.Now()
-		err = c.Insert(t)
 	}
 
-	if err != nil {
-		return t, errors.New("There was an error trying to insert the layout to the DB")
+	change := mgo.Change{
+		Update:    bson.M{"$set": t},
+		ReturnNew: true,
+		Upsert:    true,
 	}
+	_, err = c.FindId(t.ID).Apply(change, &t)
 
 	return t, err
 }

@@ -5,10 +5,9 @@ import (
 	"mailer-api/types"
 
 	"errors"
-	"time"
 
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/imdario/mergo"
 )
 
 const colSMTP string = "smtp"
@@ -77,21 +76,16 @@ func CreateOrUpdateSMTPServer(t types.SMTPServer) (types.SMTPServer, error) {
 
 	err = c.Insert(t)
 
-	if t.ID.Valid() {
-		smtp, _ := GetByIDSMTPServer(t.ID.Hex())
-		if err := mergo.Merge(&t, smtp); err != nil {
-			return t, err
-		}
-		err = c.UpdateId(t.ID, t)
-	} else {
+	if !t.ID.Valid() {
 		t.ID = bson.NewObjectId()
-		t.CreatedAt = time.Now()
-		err = c.Insert(t)
 	}
 
-	if err != nil {
-		return t, errors.New("There was an error trying to insert the SMTPServer to the DB")
+	change := mgo.Change{
+		Update:    bson.M{"$set": t},
+		ReturnNew: true,
+		Upsert:    true,
 	}
+	_, err = c.FindId(t.ID).Apply(change, &t)
 
 	return t, err
 }
